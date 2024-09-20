@@ -9,42 +9,43 @@ const session = require("express-session");
 const flash = require("connect-flash");
 const userRouter = require("./routes/user.js");
 const ejsMate = require("ejs-mate");
+require("dotenv").config();
 
-const port = 3000;
-app.set("view engine" , "ejs");
-app.set("views" , path.join(__dirname , "views"));
+const port = process.env.PORT || 3000;
 
+app.set("view engine", "ejs");
+app.set("views", path.join(__dirname, "views"));
 
 // Set the default layout
 
-app.use(express.urlencoded({extended:false}));
+app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "public")));
-app.engine("ejs" , ejsMate);
+app.engine("ejs", ejsMate);
 
-main().then( () => {
-    console.log("Connected To DataBase Successfully");
-})
-.catch( (err) => {
-    console.log(err);
-})
+mongoose
+  .connect(process.env.MONGO_URI)
+  .then(() => {
+    console.log("Connected To database successfully");
+  })
+  .catch((err) => {
+    console.log(err.message);
+  });
 
-async function main() {
-   await mongoose.connect("mongodb://127.0.0.1:27017/form")
-}
-
-app.use(session({
-    secret: 'your-secret-key', // Replace with your actual secret
+app.use(
+  session({
+    secret: "your-secret-key", // Replace with your actual secret
     resave: false, // Do not save session if unmodified
     saveUninitialized: true, // Save session even if it's not modified
     cookie: {
-        maxAge: 1000 * 60 * 60 * 24, // Set cookie expiration time (e.g., 1 day)
-        secure: false, // Set to `true` if using HTTPS
-        httpOnly: true, // Prevents client-side JavaScript from accessing the cookie
-    }
-}));
+      maxAge: 1000 * 60 * 60 * 24, // Set cookie expiration time (e.g., 1 day)
+      secure: false, // Set to `true` if using HTTPS
+      httpOnly: true, // Prevents client-side JavaScript from accessing the cookie
+    },
+  })
+);
 
-  app.use(flash());
+app.use(flash());
 
 app.use(passport.initialize());
 app.use(passport.session());
@@ -54,14 +55,13 @@ passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
 
 app.use((req, res, next) => {
-    res.locals.success = req.flash("success");
-    res.locals.error = req.flash("error");
-    next();
+  res.locals.success = req.flash("success");
+  res.locals.error = req.flash("error");
+  next();
 });
 
-app.use("/" , userRouter);
+app.use("/", userRouter);
 
-
-app.listen(port , (req,res) => {
-    console.log(`Port is Listning at http://localhost:${port}`);
-})
+app.listen(port, (req, res) => {
+  console.log(`Server is listening at http://localhost:${port}`);
+});
