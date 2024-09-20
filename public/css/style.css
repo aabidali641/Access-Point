@@ -1,0 +1,9 @@
+body{
+    background: rgb(191,240,152) !important;
+    background: linear-gradient(90deg, rgba(191,240,152,1) 0%, rgba(191,240,152,1) 0%, rgba(111,214,255,1) 100%) !important;
+}
+
+.flash{
+    font-size: larger;
+    font-weight: 900;
+}
